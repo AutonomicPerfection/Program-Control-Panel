@@ -10,7 +10,6 @@ import javax.swing.JPanel;
 
 import com.butler.utils.ConsolePanel;
 
-@SuppressWarnings("serial")
 public class RobotArmGui extends JFrame {
 	RobotArm parent;
 	ConsolePanel console;
