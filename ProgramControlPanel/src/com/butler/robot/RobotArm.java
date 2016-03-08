@@ -7,7 +7,6 @@ import com.butler.main.Resource;
 import com.butler.utils.SerialHelper;
 import com.butler.utils.SpeechSynthHelper;
 
-import guru.ttslib.TTS;
 import processing.core.PApplet;
 import processing.serial.Serial;
 
@@ -17,11 +16,9 @@ public class RobotArm extends PApplet implements KeyListener{
 	private boolean isManualOverride = true;
 	private  int timesAutoRun = 0;
 	private volatile boolean shouldAutopilot = false;
-	private TTS atlas;
 	public void setup() {
 		surface.setVisible(false);
 		gui = new RobotArmGui(this);
-		atlas = SpeechSynthHelper.getAtlasTTS();
 		arm = SerialHelper.newSerial("RobotArmSciOly2016", true);
 		arm.bufferUntil('\n');
 	}
@@ -34,6 +31,7 @@ public class RobotArm extends PApplet implements KeyListener{
 		while (!(port.available() > 0)) {
 			delay(10);
 		}
+		//String receivedString = port.readStringUntil('\n').trim();
 		String receivedString = SerialHelper.readStringUntil(arm, "\n").trim();
 		String[] params = receivedString.split(":");
 		if (params[0].equalsIgnoreCase("Reply")) {
@@ -60,7 +58,7 @@ public class RobotArm extends PApplet implements KeyListener{
 
 	public static void setResources(Resource[] resources) {
 		if (resources[0] == null) {
-			//System.err.println("No resources!");
+			System.err.println("No resources!");
 		}
 	}
 
@@ -114,7 +112,7 @@ public class RobotArm extends PApplet implements KeyListener{
 			shouldAutopilot = false;
 		}else { 
 			System.out.println("Autopilot engaged");
-			SpeechSynthHelper.speakAsynch(atlas, "Autopilot mode engaged");
+			SpeechSynthHelper.speakAsynch(SpeechSynthHelper.getAtlasTTS(), "Autopilot mode engaged");
 			gui.overrideStatus.setText("Mode: Autopilot");
 			gui.repaint();
 			shouldAutopilot = true;
@@ -124,8 +122,8 @@ public class RobotArm extends PApplet implements KeyListener{
 	public void autopilot() {
 		switch (timesAutoRun) {
 			case 0:
-				moveArm(90, -10, 50, 10, 10, true);
-				moveArm(0, -10, -10, 0, 0, true);
+				moveArm(0, -180, 0, 0, 0, true);
+				moveArm(0, 180, 0, 0, 0, true);
 			break;
 		}
 		timesAutoRun++;
@@ -135,11 +133,11 @@ public class RobotArm extends PApplet implements KeyListener{
 	public void moveArm(int x, int y, int z, int a, int b, boolean c) {
 		System.out.println("Rotating Robot Arm to coordinates "+ x + "," + y + "," + z + "," + a + "," + b);
 		if (arm != null) {
+			y = (int) ((y / 1.8) * 3.275);
 			arm.write("Command:Rotate:" + x + "," + y + "," + z + "," + a + "," + b + '\n' + "Command:SetScraperOn:" + c + '\n');
 			waitForReply(arm);
 		} else {
 			System.out.println("Warning: No serial device connected. Commands won't be sent until a serial device is connected");
-			SpeechSynthHelper.speakAsynch(atlas, "Warning: No serial device detected");
 		}
 	}
 
