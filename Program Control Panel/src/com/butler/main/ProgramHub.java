@@ -19,7 +19,7 @@ public class ProgramHub {
 		
 		Properties resourceProps = new Properties();
 		try {
-			programDirectory = new File("./Resources/ResourceDefinitions.properties");
+			programDirectory = new File("./resources/ResourceDefinitions.properties");
 			if (!programDirectory.exists()) programDirectory.createNewFile();
 			resourceProps.load(new FileInputStream(programDirectory));
 		} catch (Exception e) {
@@ -47,7 +47,7 @@ public class ProgramHub {
 		//Load programs
 		props = new Properties();		
 		try {
-			programDirectory = new File("./Resources/Programs.properties");
+			programDirectory = new File("./resources/Programs.properties");
 			if (!programDirectory.exists()) programDirectory.createNewFile();
 			props.load(new FileInputStream(programDirectory));
 		} catch (Exception e) {
