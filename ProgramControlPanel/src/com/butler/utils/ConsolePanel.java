@@ -8,6 +8,8 @@ import javax.swing.JTextArea;
 public class ConsolePanel extends OutputPanel{	
 	public ConsolePanel(int width, int height) {
 		super(width, height);
+		outputArea.setLineWrap(true);
+		outputArea.setEditable(false);
 		System.setOut(out);
 	}
 }

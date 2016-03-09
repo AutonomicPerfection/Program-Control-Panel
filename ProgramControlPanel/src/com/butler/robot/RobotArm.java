@@ -7,6 +7,7 @@ import com.butler.main.Resource;
 import com.butler.utils.SerialHelper;
 import com.butler.utils.SpeechSynthHelper;
 
+import guru.ttslib.TTS;
 import processing.core.PApplet;
 import processing.serial.Serial;
 
@@ -16,8 +17,10 @@ public class RobotArm extends PApplet implements KeyListener{
 	private boolean isManualOverride = true;
 	private  int timesAutoRun = 0;
 	private volatile boolean shouldAutopilot = false;
+	private TTS atlas;
 	public void setup() {
 		surface.setVisible(false);
+		atlas = SpeechSynthHelper.getAtlasTTS();
 		gui = new RobotArmGui(this);
 		arm = SerialHelper.newSerial("RobotArmSciOly2016", true);
 		arm.bufferUntil('\n');
@@ -107,12 +110,13 @@ public class RobotArm extends PApplet implements KeyListener{
 		isManualOverride = val;
 		if (isManualOverride) {
 			System.out.println("Manual override engaged");
+			SpeechSynthHelper.speakAsynch(atlas, "Autopilot mode engaged");
 			gui.overrideStatus.setText("Mode: Manual Control");
 			gui.repaint();
 			shouldAutopilot = false;
 		}else { 
 			System.out.println("Autopilot engaged");
-			SpeechSynthHelper.speakAsynch(SpeechSynthHelper.getAtlasTTS(), "Autopilot mode engaged");
+			SpeechSynthHelper.speakAsynch(atlas, "Autopilot mode engaged");
 			gui.overrideStatus.setText("Mode: Autopilot");
 			gui.repaint();
 			shouldAutopilot = true;
