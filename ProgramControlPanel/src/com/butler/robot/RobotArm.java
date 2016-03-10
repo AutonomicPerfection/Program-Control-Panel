@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 import com.butler.main.Resource;
 import com.butler.utils.SerialHelper;
 import com.butler.utils.SpeechSynthHelper;
+import com.sun.istack.internal.FinalArrayList;
 
 import guru.ttslib.TTS;
 import processing.core.PApplet;
@@ -18,10 +19,22 @@ public class RobotArm extends PApplet implements KeyListener{
 	private  int timesAutoRun = 0;
 	private volatile boolean shouldAutopilot = false;
 	private TTS atlas;
+
+	private final String[] stepModes = new String[] {
+			"Full", "Half", "Quarter", "Eighth"
+	};
+
+	private int currentStepModeIndex = 0;
 	public void setup() {
 		surface.setVisible(false);
 		atlas = SpeechSynthHelper.getAtlasTTS();
 		gui = new RobotArmGui(this);
+		new Thread(() -> {
+			while (true) {
+				if (shouldAutopilot) autopilot();
+				delay(50);
+			}
+		}).start();
 		arm = SerialHelper.newSerial("RobotArmSciOly2016", true);
 		arm.bufferUntil('\n');
 	}
@@ -46,7 +59,7 @@ public class RobotArm extends PApplet implements KeyListener{
 	}
 
 	public void draw() {
-		if (shouldAutopilot) autopilot();
+		
 	}
 
 	public static String getName() {
@@ -92,6 +105,11 @@ public class RobotArm extends PApplet implements KeyListener{
 		} 
 		if (e.getKeyCode() == KeyEvent.VK_ENTER)
 			setManualOverride(!isManualOverride); //Sets isManualOverride to opposite
+		else if(e.getKeyChar() == 'm') {
+			currentStepModeIndex++;
+			if (currentStepModeIndex >= stepModes.length) currentStepModeIndex = 0;
+			setStepMode(stepModes[currentStepModeIndex]);
+		}
 	}
 
 	@Override
@@ -105,12 +123,12 @@ public class RobotArm extends PApplet implements KeyListener{
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	public void setManualOverride(boolean val) {
 		isManualOverride = val;
 		if (isManualOverride) {
 			System.out.println("Manual override engaged");
-			SpeechSynthHelper.speakAsynch(atlas, "Autopilot mode engaged");
+			SpeechSynthHelper.speakAsynch(atlas, "Manual control mode engaged");
 			gui.overrideStatus.setText("Mode: Manual Control");
 			gui.repaint();
 			shouldAutopilot = false;
@@ -118,31 +136,72 @@ public class RobotArm extends PApplet implements KeyListener{
 			System.out.println("Autopilot engaged");
 			SpeechSynthHelper.speakAsynch(atlas, "Autopilot mode engaged");
 			gui.overrideStatus.setText("Mode: Autopilot");
-			gui.repaint();
 			shouldAutopilot = true;
 		}
 	}
-	
+
+	public void resetAutopilot() {
+		while (shouldAutopilot){
+			delay (50);
+		}
+		System.out.println("Resetting autopilot counter");
+		SpeechSynthHelper.speakAsynch(atlas, "Resetting autopilot counter");
+		setAutopilotCounter(0);
+	}
+
 	public void autopilot() {
+		//setStepMode(stepModes[0]);
+		//currentStepModeIndex = 0;
 		switch (timesAutoRun) {
-			case 0:
-				moveArm(0, -180, 0, 0, 0, true);
-				moveArm(0, 180, 0, 0, 0, true);
+		case 0:
+			moveArm(0, -180, 0, 0, 0, true);
+			moveArm(0, 180, 0, 0, 0, true);
 			break;
 		}
-		timesAutoRun++;
+		setAutopilotCounter(timesAutoRun + 1);
 		setManualOverride(true);
 	}
 	
+	public void setAutopilotCounter(int count) {
+		timesAutoRun = count;
+		gui.autopilotCounterStatus.setText("Autopilot sequence: " + timesAutoRun);
+	}
+
 	public void moveArm(int x, int y, int z, int a, int b, boolean c) {
+		new Thread(() -> {
 		System.out.println("Rotating Robot Arm to coordinates "+ x + "," + y + "," + z + "," + a + "," + b);
 		if (arm != null) {
-			y = (int) ((y / 1.8) * 3.275);
-			arm.write("Command:Rotate:" + x + "," + y + "," + z + "," + a + "," + b + '\n' + "Command:SetScraperOn:" + c + '\n');
+			int yCalc = (int) ((y / 1.8) * 3.275);
+			arm.write("Command:Rotate:" + x + "," + yCalc + "," + z + "," + a + "," + b + '\n' + "Command:SetScraperOn:" + c + '\n');
 			waitForReply(arm);
 		} else {
 			System.out.println("Warning: No serial device connected. Commands won't be sent until a serial device is connected");
 		}
+		}).start();
 	}
 
+	public void setStepMode(String mode) {
+		if (arm != null) {
+			System.out.println("Stepping mode set to " + mode.toLowerCase() + " step mode");
+			SpeechSynthHelper.speakAsynch(atlas, "Stepping mode set to " + mode + " step mode");
+			gui.stepModeStatus.setText("Step Mode: " + mode);
+			gui.stepModeStatus.repaint();
+			if (mode.equalsIgnoreCase("Full")) {
+				arm.write("Command:StepMode:0,0");
+				waitForReply(arm);
+			} else if(mode.equalsIgnoreCase("Half")) {
+				arm.write("Command:StepMode:1,0");
+				waitForReply(arm);
+			} else if(mode.equalsIgnoreCase("Quarter")) {
+				arm.write("Command:StepMode:0,1");
+				waitForReply(arm);
+			} else if(mode.equalsIgnoreCase("Eighth")) {
+				arm.write("Command:StepMode:1,1");
+				waitForReply(arm);
+			}
+		} else {
+			System.out.println("Error: no serial devices connected. Cannot set step mode without a connected serial device");
+			SpeechSynthHelper.speakAsynch(atlas, "Error: no serial devices connected");
+		}
+	}
 }
