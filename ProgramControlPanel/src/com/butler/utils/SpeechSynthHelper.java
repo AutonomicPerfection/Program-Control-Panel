@@ -2,24 +2,24 @@ package com.butler.utils;
 
 import guru.ttslib.TTS;
 
-public class SpeechSynthHelper {
-	private static TTS sysTTS = null;
+public class SpeechSynthHelper extends TTS{
+	private static SpeechSynthHelper sysTTS = null;
 
-	public static TTS getSysTTS() {
+	public static SpeechSynthHelper getSysTTS() {
 		return sysTTS;
 	}
 	
 	public static TTS createSysTTS() {
-		sysTTS = new TTS();
+		sysTTS = new SpeechSynthHelper();
 		return sysTTS;
 	}
 	
-	public static void setSysTTS(TTS _tts) {
+	public static void setSysTTS(SpeechSynthHelper _tts) {
 		sysTTS = _tts;
 	}
 	
-	public static TTS getAtlasTTS() {
-		TTS atlas = new TTS();
+	public static SpeechSynthHelper getAtlasTTS() {
+		SpeechSynthHelper atlas = new SpeechSynthHelper();
 		atlas.setPitch(.05F);
 		atlas.setPitchRange(100);
 		atlas.setPitchShift(100);
@@ -32,5 +32,9 @@ public class SpeechSynthHelper {
 		});
 		speechThread.setName("TTS Thread " + speechThread.getId());
 		speechThread.start();
+	}
+	
+	public void speakAsynch(String speech) {
+		speakAsynch(this, speech);
 	}
 }

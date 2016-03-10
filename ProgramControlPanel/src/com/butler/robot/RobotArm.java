@@ -2,13 +2,13 @@ package com.butler.robot;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.butler.main.Resource;
 import com.butler.utils.SerialHelper;
 import com.butler.utils.SpeechSynthHelper;
-import com.sun.istack.internal.FinalArrayList;
 
-import guru.ttslib.TTS;
 import processing.core.PApplet;
 import processing.serial.Serial;
 
@@ -18,7 +18,7 @@ public class RobotArm extends PApplet implements KeyListener{
 	private boolean isManualOverride = true;
 	private  int timesAutoRun = 0;
 	private volatile boolean shouldAutopilot = false;
-	private TTS atlas;
+	private SpeechSynthHelper atlas;
 
 	private final String[] stepModes = new String[] {
 			"Full", "Half", "Quarter", "Eighth"
@@ -35,7 +35,8 @@ public class RobotArm extends PApplet implements KeyListener{
 				delay(50);
 			}
 		}).start();
-		arm = SerialHelper.newSerial("RobotArmSciOly2016", true);
+		//arm = SerialHelper.newSerial("RobotArmSciOly2016", true);
+		arm = new SerialHelper("RobotArmSciOly2016", true);
 		arm.bufferUntil('\n');
 	}
 
@@ -150,8 +151,7 @@ public class RobotArm extends PApplet implements KeyListener{
 	}
 
 	public void autopilot() {
-		//setStepMode(stepModes[0]);
-		//currentStepModeIndex = 0;
+		setStepMode("Full");
 		switch (timesAutoRun) {
 		case 0:
 			moveArm(0, -180, 0, 0, 0, true);
@@ -181,11 +181,12 @@ public class RobotArm extends PApplet implements KeyListener{
 	}
 
 	public void setStepMode(String mode) {
+		gui.stepModeStatus.setText("Step Mode: " + mode);
+		gui.stepModeStatus.repaint();
+		currentStepModeIndex = new ArrayList<String>(Arrays.asList(stepModes)).indexOf(mode);
 		if (arm != null) {
 			System.out.println("Stepping mode set to " + mode.toLowerCase() + " step mode");
 			SpeechSynthHelper.speakAsynch(atlas, "Stepping mode set to " + mode + " step mode");
-			gui.stepModeStatus.setText("Step Mode: " + mode);
-			gui.stepModeStatus.repaint();
 			if (mode.equalsIgnoreCase("Full")) {
 				arm.write("Command:StepMode:0,0");
 				waitForReply(arm);
@@ -201,7 +202,8 @@ public class RobotArm extends PApplet implements KeyListener{
 			}
 		} else {
 			System.out.println("Error: no serial devices connected. Cannot set step mode without a connected serial device");
-			SpeechSynthHelper.speakAsynch(atlas, "Error: no serial devices connected");
+			//SpeechSynthHelper.speakAsynch(atlas, "Error: no serial devices connected");
+			atlas.speakAsynch("Error: no serial devices connected");
 		}
 	}
 }
