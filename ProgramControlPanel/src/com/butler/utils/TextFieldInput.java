@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.EventObject;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -22,14 +23,20 @@ public class TextFieldInput extends JPanel implements KeyListener, ActionListene
 	private PApplet parent = new PApplet();
 	private ArrayList<TextInputListener> listeners = new ArrayList<TextInputListener>();
 	
-	public TextFieldInput(int size) {
+	public TextFieldInput(String label, int size) {
 		super();
 		txtField = new JTextField(size);
 		txtField.addKeyListener(this);
 		enter.addActionListener(this);
+		if (label != null) add(new JLabel(label));
 		add(txtField);
 		add(enter);
 	}
+	
+	public TextFieldInput(int size) {
+		new TextFieldInput(null, size);
+	}
+	
 	
 	public void addTextInputListener(TextInputListener _listener) {
 		listeners.add(_listener);
