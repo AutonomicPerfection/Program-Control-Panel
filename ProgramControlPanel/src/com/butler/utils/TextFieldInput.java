@@ -47,6 +47,10 @@ public class TextFieldInput extends JPanel implements KeyListener, ActionListene
 		isInputConsumed = true;
 		return input;
 	}
+	
+	public JTextField getTextField() {
+		return txtField;
+	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
