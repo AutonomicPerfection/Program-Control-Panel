@@ -26,6 +26,7 @@ public class RobotArmGui extends JFrame implements TextInputListener, ActionList
 	private RobotArm parent;
 	private ConsolePanel console;
 	private TextFieldInput input;
+	private String focusName = "Unknown Focus";
 	private JButton restart = new JButton("Reset Autopilot");
 	private JPanel cheatSheet = new JPanel();
 	private JLabel xPlus = new JLabel("Up: Up Arrow Key");
@@ -36,13 +37,13 @@ public class RobotArmGui extends JFrame implements TextInputListener, ActionList
 	private JLabel zMinus = new JLabel("Backward: S");
 	private JLabel aPlus = new JLabel("Drum Right: D");
 	private JLabel aMinus = new JLabel("Drum Left: A");
-	private JLabel bPlus = new JLabel("Drum Clockwise: R");
-	private JLabel bMinus = new JLabel("Drum Counterclockwise: T");
+	private JLabel bPlus = new JLabel("Drum Clockwise: Q");
+	private JLabel bMinus = new JLabel("Drum Counterclockwise: E");
 	
 	public JPanel controlPanel = new JPanel();
-	public JLabel stepModeStatus = new JLabel("Step Mode: Full");
-	public StatusLabel overrideStatus = new StatusLabel("Mode", "Manual Control (Keybindings)");
-	public JLabel autopilotCounterStatus = new JLabel("Autopilot sequence: 0");
+	public StatusLabel stepModeStatus = new StatusLabel("Step Resolution", "10 Step");
+	public StatusLabel overrideStatus = new StatusLabel("Mode", "Manual Control (Unknown Focus)");
+	public StatusLabel autopilotCounterStatus = new StatusLabel("Autopilot sequence", "0");
 	
 	public RobotArmGui(RobotArm _parent) {
 		super("Robot Arm Gui");
@@ -121,17 +122,22 @@ public class RobotArmGui extends JFrame implements TextInputListener, ActionList
 
 	@Override
 	public void focusGained(FocusEvent e) {
-		System.out.println("Focus gained from " + e.getComponent().toString());
-		if (e.getComponent().equals(console.outputArea) && !parent.isManualOverride()) {
+		if (e.getComponent().equals(console.outputArea) && parent.isManualOverride()) {
 			overrideStatus.setStatus("Manual Control (Keybindings)");
-		} else if (e.getComponent() && !parent.isManualOverride()) {
+			focusName = "Keybindings";
+		} else if (e.getComponent().equals(input.getTextField()) && parent.isManualOverride()) {
 			overrideStatus.setStatus("Manual Control (Vector Input)");
+			focusName = "Vector Input";
 		}
 	}
 
 	@Override
 	public void focusLost(FocusEvent e) {
-		// TODO Auto-generated method stub
-		
+		overrideStatus.setStatus("Manual Control (Unknown Focus)");
+		focusName = "Unknown Focus";
+	}
+	
+	public String getFocus() {
+		return focusName;
 	}
 }

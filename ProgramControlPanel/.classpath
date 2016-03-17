@@ -5,14 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Processing3Core"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Processing3Serial"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ProcessingTTS"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/cmu_us_kal.jar"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/cmulex.jar"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/en_us.jar"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/freetts.jar"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/jsapi.jar"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/sphinx4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/voce.jar"/>
-	<classpathentry kind="lib" path="C:/Users/KidsKids Laptop/Documents/Processing3/libraries/voce/lib/WSJ_8gau_13dCep_16k_40mel_130Hz_6800Hz.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ProcessingSTT"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
